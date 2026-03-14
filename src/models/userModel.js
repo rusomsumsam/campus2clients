@@ -17,11 +17,29 @@ class UserModel {
             phone: userData.phone,
             password: hashedPassword,
             countryCode: userData.countryCode,
+
             isEmailVerified: false,
             isPhoneVerified: false,
+
+            userType: "general",
+            admin: false,
+
+            wallet: [
+                {
+                    totalEarning: "",
+                    
+                }
+
+            ],
+
+            ban: false,
+
+            violation: [],
+
             createdAt: new Date(),
             updatedAt: new Date()
         };
+
 
         const result = await this.collection.insertOne(user);
         return { ...user, _id: result.insertedId };

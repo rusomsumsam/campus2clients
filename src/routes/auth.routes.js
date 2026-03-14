@@ -22,9 +22,6 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 router.post('/register', async (req, res) => {
     try {
-        console.log('=== REGISTRATION REQUEST RECEIVED ===');
-        console.log('Request body:', JSON.stringify(req.body, null, 2));
-
         const db = await connectDB();
         const userModel = new UserModel(db);
         const otpModel = new OTPModel(db);
@@ -39,7 +36,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        console.log('Checking if user exists...');
+        
         // Check if user exists
         const existingUser = await userModel.findUserByEmail(email) || await userModel.findUserByPhone(phone);
         if (existingUser) {
@@ -49,7 +46,6 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        console.log('Creating new user...');
         // Create user
         const newUser = await userModel.createUser({
             firstName,
@@ -59,27 +55,27 @@ router.post('/register', async (req, res) => {
             password,
             countryCode
         });
-        console.log('User created with ID:', newUser._id);
+        
 
         // Generate OTPs
         const emailOTP = generateOTP();
         const phoneOTP = generateOTP();
-        console.log('OTPs generated - Email OTP:', emailOTP, 'Phone OTP:', phoneOTP);
+        
 
         // Store OTPs
-        console.log('Storing OTPs in database...');
+    
         await otpModel.createOTP(newUser._id, email, phone, emailOTP, 'email');
         await otpModel.createOTP(newUser._id, email, phone, phoneOTP, 'phone');
-        console.log('OTPs stored successfully');
+        
 
         // Send OTPs (don't let failures block registration)
-        console.log('Sending email OTP...');
+    
         const emailSent = await sendEmailOTP(email, emailOTP).catch(err => {
             console.error('Email sending failed:', err);
             return { success: false };
         });
 
-        console.log('Sending SMS OTP...');
+        
         const smsSent = await sendSMSOTP(phone, phoneOTP).catch(err => {
             console.error('SMS sending failed:', err);
             return { success: false };
@@ -98,7 +94,7 @@ router.post('/register', async (req, res) => {
             }
         };
 
-        console.log('Sending response:', JSON.stringify(response, null, 2));
+    
         res.status(201).json(response);
 
     } catch (error) {
